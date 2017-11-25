@@ -97,5 +97,51 @@ namespace SimpleNeuralNetwork
 
             return output;
         }
+
+        public bool Train(List<double> input, List<double> output)
+        {
+            if((input.Count != this.Layers[0].Neurons.Count) || (output.Count != this.Layers[this.Layers.Count - 1].Neurons.Count))
+            {
+                return false;
+            }
+
+            Run(input);
+
+            for(int i = 0; i < this.Layers[this.Layers.Count - 1].Neurons.Count; i++)
+            {
+                Neuron neuron = this.Layers[this.Layers.Count - 1].Neurons[i];
+
+                neuron.Delta = neuron.Value * (1 - neuron.Value) * (output[i] - neuron.Value);
+
+                for(int j = this.Layers.Count - 2; j > 2; j--)
+                {
+                    for(int k = 0; k < this.Layers[j].Neurons.Count; k++)
+                    {
+                        Neuron n = this.Layers[j].Neurons[k];
+
+                        n.Delta = n.Value *
+                                  (1 - n.Value) *
+                                  this.Layers[j + 1].Neurons[i].Dendrites[k].Weight *
+                                  this.Layers[j + 1].Neurons[i].Delta;
+                    }
+                }
+            }
+
+            for(int i = this.Layers.Count - 1; i > 1; i--)
+            {
+                for(int j = 0; j < this.Layers[i].Neurons.Count; j++)
+                {
+                    Neuron n = this.Layers[i].Neurons[j];
+                    n.Bias = n.Bias + (this.LearningRate * n.Delta);
+
+                    for(int k = 0; k < n.Dendrites.Count; k++)
+                    {
+                        n.Dendrites[k].Weight = n.Dendrites[k].Weight + (this.LearningRate * this.Layers[i - 1].Neurons[k].Value * n.Delta);
+                    }
+                }
+            }
+
+            return true;
+        }
     }
 }
