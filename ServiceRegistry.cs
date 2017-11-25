@@ -23,7 +23,7 @@ namespace SimpleNeuralNetwork
 
         public ServiceRegistry()
         {
-            random = new Random();
+            random = new Random(Environment.TickCount);
         }
 
         public Random GetRandom()
